@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ DualNode - Control Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- ============================================ -->
+    <!-- HEADER -->
+    <!-- ============================================ -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1 class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">DualNode</span>
+                </h1>
+                <span class="subtitle">Control Hub</span>
+            </div>
+            
+            <div class="header-right">
+                <div class="status-indicator" id="serverStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Conectando...</span>
+                </div>
+                
+                <button class="btn-icon" id="btnNotifications" title="Notificaciones">
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                    🔔
+                </button>
+                
+                <button class="btn-icon btn-settings" id="btnSettings" title="Configuración">
+                    ⚙️
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTENT -->
+    <!-- ============================================ -->
+    <main class="main-content">
+        
+        <!-- Mensaje cuando no hay kits -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">🚀</div>
+            <h2>¡Bienvenido a DualNode!</h2>
+            <p>No hay kits configurados aún.</p>
+            <button class="btn-primary btn-large" id="btnConfigureFirst">
+                <span class="btn-icon">⚙️</span>
+                Configurar Kits
+            </button>
+        </div>
+
+        <!-- Grid de kits -->
+        <div class="stations-grid" id="stationsGrid" style="display: none;">
+            
+            <!-- ============================================ -->
+            <!-- NODO 1: LEDs + IA -->
+            <!-- ============================================ -->
+            <div class="station-card" id="stationLeds" style="display: none;">
+                <div class="station-header">
+                    <div class="station-title">
+                        <span class="station-icon">🎨</span>
+                        <div>
+                            <h2>LEDs + IA</h2>
+                            <p class="station-subtitle">Control Inteligente</p>
+                        </div>
+                    </div>
+                    <div class="station-status" id="ledsStatus">
+                        <span class="status-dot offline"></span>
+                        <span>Offline</span>
+                    </div>
+                </div>
+
+                <div class="station-info">
+                    <div class="info-item">
+                        <span class="info-label">IP</span>
+                        <span class="info-value" id="ledsIP">---</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Actualizado</span>
+                        <span class="info-value" id="ledsLastSeen">nunca</span>
+                    </div>
+                </div>
+
+                <!-- Chat con IA -->
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <span>💬 Chat con IA</span>
+                    </div>
+                    
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message assistant">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">
+                                <p>¡Hola! Dime qué quieres hacer con los LEDs.</p>
+                                <div class="message-suggestions">
+                                    <button class="suggestion-chip" data-prompt="Enciende todos los LEDs">
+                                        💡 Encender todos
+                                    </button>
+                                    <button class="suggestion-chip" data-prompt="Apaga todos los LEDs">
+                                        🌑 Apagar todos
+                                    </button>
+                                    <button class="suggestion-chip" data-prompt="Haz un efecto de ola de izquierda a derecha">
+                                        🌊 Efecto ola
+                                    </button>
+                                    <button class="suggestion-chip" data-prompt="Parpadeo rápido en rojo">
+                                        ⚠️ Alerta roja
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <input 
+                            type="text" 
+                            class="chat-input" 
+                            id="chatInput" 
+                            placeholder="Escribe tu comando aquí..."
+                        >
+                        <button class="btn-send" id="btnSendChat">
+                            <span class="send-icon">✨</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estado de LEDs -->
+                <div class="leds-display">
+                    <div class="leds-display-header">
+                        <span>💡 Estado LEDs</span>
+                    </div>
+                    <div class="leds-grid">
+                        <div class="led-item" data-led="0">
+                            <div class="led-visual verde off"></div>
+                            <span class="led-label">0</span>
+                        </div>
+                        <div class="led-item" data-led="1">
+                            <div class="led-visual amarillo off"></div>
+                            <span class="led-label">1</span>
+                        </div>
+                        <div class="led-item" data-led="2">
+                            <div class="led-visual rojo off"></div>
+                            <span class="led-label">2</span>
+                        </div>
+                        <div class="led-item" data-led="3">
+                            <div class="led-visual azul off"></div>
+                            <span class="led-label">3</span>
+                        </div>
+                        <div class="led-item" data-led="4">
+                            <div class="led-visual naranja off"></div>
+                            <span class="led-label">4</span>
+                        </div>
+                        <div class="led-item" data-led="5">
+                            <div class="led-visual naranja off"></div>
+                            <span class="led-label">5</span>
+                        </div>
+                        <div class="led-item" data-led="6">
+                            <div class="led-visual azul off"></div>
+                            <span class="led-label">6</span>
+                        </div>
+                        <div class="led-item" data-led="7">
+                            <div class="led-visual rojo off"></div>
+                            <span class="led-label">7</span>
+                        </div>
+                        <div class="led-item" data-led="8">
+                            <div class="led-visual amarillo off"></div>
+                            <span class="led-label">8</span>
+                        </div>
+                        <div class="led-item" data-led="9">
+                            <div class="led-visual verde off"></div>
+                            <span class="led-label">9</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="station-actions">
+                    <button class="btn-secondary" id="btnStopLeds" disabled>
+                        <span>⏹️</span> Detener
+                    </button>
+                    <button class="btn-danger" id="btnResetLeds" disabled>
+                        <span>🔄</span> Resetear
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================ -->
+            <!-- NODO 2: SENSORES -->
+            <!-- ============================================ -->
+            <div class="station-card" id="stationSensors" style="display: none;">
+                <div class="station-header">
+                    <div class="station-title">
+                        <span class="station-icon">📊</span>
+                        <div>
+                            <h2>Sensores</h2>
+                            <p class="station-subtitle">Monitoreo Ambiental</p>
+                        </div>
+                    </div>
+                    <div class="station-status" id="sensorsStatus">
+                        <span class="status-dot offline"></span>
+                        <span>Offline</span>
+                    </div>
+                </div>
+
+                <div class="station-info">
+                    <div class="info-item">
+                        <span class="info-label">IP</span>
+                        <span class="info-value" id="sensorsIP">---</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Actualizado</span>
+                        <span class="info-value" id="sensorsLastSeen">nunca</span>
+                    </div>
+                </div>
+
+                <!-- Temperatura -->
+                <div class="sensor-panel">
+                    <div class="sensor-header">
+                        <span class="sensor-icon">🌡️</span>
+                        <span class="sensor-title">Temperatura</span>
+                    </div>
+                    <div class="sensor-value-large" id="tempValue">
+                        <span class="value">--</span>
+                        <span class="unit">°C</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill temp-fill" id="tempBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>18°</span>
+                        <span>32°</span>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="tempChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Humedad -->
+                <div class="sensor-panel">
+                    <div class="sensor-header">
+                        <span class="sensor-icon">💧</span>
+                        <span class="sensor-title">Humedad</span>
+                    </div>
+                    <div class="sensor-value-large" id="humValue">
+                        <span class="value">--</span>
+                        <span class="unit">%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill hum-fill" id="humBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>20%</span>
+                        <span>80%</span>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="humChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Distancia con visualización radar -->
+                <div class="sensor-panel">
+                    <div class="sensor-header">
+                        <span class="sensor-icon">📏</span>
+                        <span class="sensor-title">Distancia</span>
+                    </div>
+                    <div class="sensor-value-large" id="distValue">
+                        <span class="value">--</span>
+                        <span class="unit">m</span>
+                    </div>
+                    
+                    <!-- Visualización Radar -->
+                    <div class="radar-container">
+                        <div class="radar-display">
+                            <div class="radar-center">
+                                <span class="radar-icon">📡</span>
+                            </div>
+                            <div class="radar-wave" id="radarWave"></div>
+                            <div class="radar-object" id="radarObject">
+                                <div class="object-dot"></div>
+                            </div>
+                            <div class="radar-grid"></div>
+                        </div>
+                        <div class="distance-bar">
+                            <div class="distance-marker" id="distanceMarker"></div>
+                        </div>
+                        <div class="distance-labels">
+                            <span>0m</span>
+                            <span>2.5m</span>
+                            <span>5m</span>
+                        </div>
+                        <div class="distance-status" id="distanceStatus">
+                            Esperando datos...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="station-actions">
+                    <button class="btn-secondary" id="btnExportData" disabled>
+                        <span>📥</span> Exportar CSV
+                    </button>
+                    <button class="btn-danger" id="btnResetSensors" disabled>
+                        <span>🔄</span> Resetear
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Botón flotante para configurar -->
+        <button class="fab" id="fabConfigure" style="display: none;">
+            <span>⚙️</span>
+        </button>
+
+    </main>
+
+    <!-- ============================================ -->
+    <!-- MODAL DE CONFIGURACIÓN -->
+    <!-- ============================================ -->
+    <div class="modal" id="configModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Configurar Kits</h2>
+                <button class="modal-close" id="modalClose">✖</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Paso 1: Buscar dispositivos -->
+                <div class="config-step active" id="step1">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-info">
+                            <h3>Buscar Dispositivos</h3>
+                            <p>Escanea dispositivos ESP32 cercanos por Bluetooth</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step-content">
+                        <button class="btn-primary btn-large" id="btnScanBLE">
+                            <span class="btn-icon">🔍</span>
+                            Buscar por Bluetooth
+                        </button>
+                        
+                        <div class="devices-list" id="devicesList" style="display: none;">
+                            <h4>Dispositivos encontrados:</h4>
+                            <!-- Se llenarán dinámicamente -->
+                        </div>
+                        
+                        <div class="loading" id="scanLoading" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>Buscando dispositivos...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 2: Configurar WiFi -->
+                <div class="config-step" id="step2" style="display: none;">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-info">
+                            <h3>Configurar WiFi</h3>
+                            <p>Conecta el kit a tu red WiFi</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step-content">
+                        <div class="form-group">
+                            <label>Dispositivo seleccionado:</label>
+                            <div class="selected-device" id="selectedDevice">
+                                <span class="device-icon">📡</span>
+                                <span class="device-name">---</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Red WiFi:</label>
+                            <select class="form-select" id="wifiSelect" disabled>
+                                <option>Escaneando redes...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Contraseña:</label>
+                            <input 
+                                type="password" 
+                                class="form-input" 
+                                id="wifiPassword" 
+                                placeholder="Ingresa la contraseña"
+                                disabled
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Tipo de kit:</label>
+                            <div class="station-type-selector">
+                                <label class="radio-card">
+                                    <input type="radio" name="stationType" value="leds-ia">
+                                    <div class="radio-card-content">
+                                        <span class="radio-icon">🎨</span>
+                                        <span class="radio-label">LEDs + IA</span>
+                                    </div>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="stationType" value="sensores">
+                                    <div class="radio-card-content">
+                                        <span class="radio-icon">📊</span>
+                                        <span class="radio-label">Sensores</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="step-actions">
+                            <button class="btn-secondary" id="btnBack1">
+                                ← Atrás
+                            </button>
+                            <button class="btn-primary" id="btnConfigure" disabled>
+                                Configurar →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 3: Conectando -->
+                <div class="config-step" id="step3" style="display: none;">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-info">
+                            <h3>Conectando...</h3>
+                            <p>Configurando el kit</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step-content">
+                        <div class="loading">
+                            <div class="spinner large"></div>
+                            <div class="progress-text" id="progressText">
+                                Enviando configuración...
+                            </div>
+                            <div class="progress-bar-full">
+                                <div class="progress-fill-full" id="progressBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 4: Completado -->
+                <div class="config-step" id="step4" style="display: none;">
+                    <div class="step-content">
+                        <div class="success-message">
+                            <div class="success-icon">🎉</div>
+                            <h2>¡Configuración Exitosa!</h2>
+                            <p class="success-subtitle">El kit está listo para usar</p>
+                            
+                            <div class="success-details" id="successDetails">
+                                <!-- Se llenará dinámicamente -->
+                            </div>
+                            
+                            <button class="btn-primary btn-large" id="btnFinish">
+                                ✓ Ir al Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TOAST NOTIFICATIONS -->
+    <!-- ============================================ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============================================ -->
+    <!-- SCRIPTS -->
+    <!-- ============================================ -->
+    <script src="js/error-handler.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/ble-config.js"></script>
+    <script src="js/leds-ia.js"></script>
+    <script src="js/sensores.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+# ===================
+# Dependencias
+# ===================
+node_modules/
+package-lock.json
+
+# ===================
+# Variables de entorno y credenciales
+# ===================
+.env
+.env.local
+.env.production
+*.pem
+*.key
+serviceAccountKey.json
+firebase-credentials.json
+*-firebase-adminsdk-*.json
+
+# ===================
+# Logs
+# ===================
+logs/
+*.log
+npm-debug.log*
+
+# ===================
+# Sistema operativo
+# ===================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===================
+# IDE y editores
+# ===================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===================
+# Build y compilados
+# ===================
+dist/
+build/
+out/
+
+# ===================
+# Archivos temporales
+# ===================
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ===================
+# ESP32 / PlatformIO (si aplica)
+# ===================
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# ===================
+# Datos locales de prueba
+# ===================
+*.sqlite
+*.db
+data/
+
+# ===================
+# Cobertura de tests
+# ===================
+coverage/
+.nyc_output/
