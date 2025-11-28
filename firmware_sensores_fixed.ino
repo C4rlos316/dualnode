@@ -107,6 +107,8 @@ String serverAddress = "";
 
 String scannedNetworks = "";
 bool networksScanned = false;
+bool scanInProgress = false;
+unsigned long scanStartTime = 0;
 
 
 // ============================================
@@ -148,6 +150,8 @@ void readSensors();
 void sendDataToServer();
 void registerToServer();
 bool connectWiFi(String ssid, String password);
+void startWiFiScan();
+void checkWiFiScanResult();
 
 
 // ============================================
@@ -208,18 +212,32 @@ class CharacteristicCallbacks: public BLECharacteristicCallbacks {
   void onRead(BLECharacteristic* pCharacteristic) {
     String uuid = String(pCharacteristic->getUUID().toString().c_str());
     
+    Serial.println("⚡⚡⚡ onRead() EJECUTADO - UUID: " + uuid);
+    
     if (uuid.indexOf(CHAR_SCAN_UUID) != -1) {
       Serial.println("BLE: Cliente solicitó redes WiFi");
+      Serial.println("    networksScanned=" + String(networksScanned));
+      Serial.println("    scannedNetworks.length()=" + String(scannedNetworks.length()));
       
       // Devolver redes ya escaneadas
       if (networksScanned && scannedNetworks.length() > 0) {
-        pCharacteristic->setValue(scannedNetworks.c_str());
-        Serial.println("BLE: Enviando " + String(scannedNetworks.length()) + " bytes de redes");
+        // ⚠️ Limitar a 512 bytes (MTU máximo)
+        String dataToSend = scannedNetworks;
+        if (dataToSend.length() > 500) {
+          Serial.println("BLE: ⚠️ Datos muy grandes (" + String(dataToSend.length()) + " bytes), truncando a 500");
+          dataToSend = dataToSend.substring(0, 500);
+        }
+        
+        pCharacteristic->setValue(dataToSend.c_str());
+        Serial.println("BLE: ✓ Enviando " + String(dataToSend.length()) + " bytes de redes");
+        Serial.println("    Primeros 100 bytes: " + dataToSend.substring(0, 100));
       } else {
         // Si no hay redes, devolver vacío
         pCharacteristic->setValue("");
-        Serial.println("BLE: No hay redes escaneadas aún");
+        Serial.println("BLE: ⚠ No hay redes escaneadas aún");
       }
+    } else {
+      Serial.println("⚠️ UUID no coincide con CHAR_SCAN_UUID");
     }
   }
 };
@@ -293,9 +311,16 @@ void initBLE() {
   
   pCharScan = pService->createCharacteristic(
     CHAR_SCAN_UUID,
-    BLECharacteristic::PROPERTY_READ
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
   );
   pCharScan->setCallbacks(new CharacteristicCallbacks());
+  pCharScan->addDescriptor(new BLE2902());
+  
+  // ⚠️ IMPORTANTE: Establecer MTU grande
+  BLEDevice::setMTU(512);
+  
+  // Establecer valor inicial
+  pCharScan->setValue("INITIALIZING");
   
   pCharServer = pService->createCharacteristic(
     CHAR_SERVER_UUID,
@@ -346,7 +371,73 @@ void initBLE() {
   Serial.println("✓ " + String(n) + " redes WiFi encontradas y almacenadas");
   Serial.println("Redes: " + scannedNetworks);
   
+  // ⚠️ IMPORTANTE: Establecer el valor en la característica BLE
+  pCharScan->setValue(scannedNetworks.c_str());
+  Serial.println("✓ Redes almacenadas en característica BLE");
+  
   showOLEDConfig(deviceName);
+}
+
+
+// ============================================
+// ESCANEO WiFi ASÍNCRONO
+// ============================================
+
+
+void startWiFiScan() {
+  if (scanInProgress) return;
+  
+  Serial.println("📡 Iniciando escaneo WiFi asíncrono...");
+  scanInProgress = true;
+  scanStartTime = millis();
+  
+  // Escaneo asíncrono: async=true, show_hidden=false, passive=false, max_ms_per_chan=100
+  WiFi.scanNetworks(true, false, false, 100);
+}
+
+
+void checkWiFiScanResult() {
+  if (!scanInProgress) return;
+  
+  int scanResult = WiFi.scanComplete();
+  
+  if (scanResult == WIFI_SCAN_RUNNING) {
+    // Aún escaneando, verificar timeout (máximo 5 segundos)
+    if (millis() - scanStartTime > 5000) {
+      Serial.println("⚠ Timeout de escaneo WiFi, reintentando...");
+      WiFi.scanDelete();
+      scanInProgress = false;
+      startWiFiScan();
+    }
+    return;
+  }
+  
+  if (scanResult == WIFI_SCAN_FAILED) {
+    Serial.println("⚠ Escaneo WiFi falló, reintentando...");
+    scanInProgress = false;
+    delay(100);
+    startWiFiScan();
+    return;
+  }
+  
+  // Escaneo completado exitosamente
+  if (scanResult >= 0) {
+    scannedNetworks = "";
+    
+    for (int i = 0; i < scanResult; i++) {
+      if (i > 0) scannedNetworks += ";";
+      scannedNetworks += WiFi.SSID(i) + "," + String(WiFi.RSSI(i)) + "," + String(WiFi.encryptionType(i));
+    }
+    
+    networksScanned = true;
+    scanInProgress = false;
+    
+    Serial.println("✓ " + String(scanResult) + " redes WiFi encontradas (" + String(millis() - scanStartTime) + "ms)");
+    Serial.println("Redes: " + scannedNetworks);
+    
+    // Limpiar resultados de memoria
+    WiFi.scanDelete();
+  }
 }
 
 

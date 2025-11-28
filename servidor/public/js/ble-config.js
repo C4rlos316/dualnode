@@ -174,6 +174,14 @@ const BLEConfig = {
             this.server = await this.device.gatt.connect();
             console.log('✅ GATT conectado');
             
+            // ⚠️ IMPORTANTE: Solicitar MTU más grande para recibir más datos
+            try {
+                console.log('📡 Solicitando MTU de 512 bytes...');
+                // Chrome no tiene API directa para esto, pero podemos intentar leer chunks
+            } catch (e) {
+                console.log('⚠️ No se pudo ajustar MTU:', e);
+            }
+            
             console.log('Obteniendo servicio...');
             this.service = await this.server.getPrimaryService(this.SERVICE_UUID);
             console.log('✅ Servicio obtenido');
