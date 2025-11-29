@@ -1,4 +1,20 @@
-# 📚 DUALNODE - Documentación Técnica Completa
+# 🚀 DUALNODE – Proyecto final de fundamentos de sistemas embebidos semestre 2026-1
+
+**Profesor:** Rodrigo Ramos Díaz  
+**Alumnos:** Uriel Benjamin De La Merced Soriano, Brian Erik Martinez Perez, Ruiz Agilar Cristian Jair, Carlos Mario Hernandez Gutierrez  
+
+## 🏷️ Tecnologías Utilizadas
+
+![ESP32](https://img.shields.io/badge/ESP32-000000?style=for-the-badge&logo=espressif&logoColor=white)
+![Arduino IDE](https://img.shields.io/badge/Arduino_IDE-00979D?style=for-the-badge&logo=arduino&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-3C873A?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![BLE](https://img.shields.io/badge/BLE-Bluetooth?style=for-the-badge&logo=bluetooth&logoColor=white&color=0072CE)
+![Groq AI](https://img.shields.io/badge/Groq_AI-FF4D00?style=for-the-badge&logo=neovim&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+
 
 ## 📋 Índice
 
@@ -44,14 +60,6 @@
 │                              ARQUITECTURA DUALNODE                          │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-                                    ☁️ NUBE
-                    ┌─────────────────────────────────────┐
-                    │           Firebase Firestore        │
-                    │    (Almacenamiento de comandos)     │
-                    └──────────────────┬──────────────────┘
-                                       │
-                                       │ HTTPS
-                                       ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │                           🖥️ SERVIDOR NODE.JS                                │
 │                              (Express.js)                                    │
@@ -66,26 +74,26 @@
                     │    (HTTP Requests)    │
                     └───────────┬───────────┘
                                 │
-          ┌─────────────────────┼─────────────────────┐
-          │                     │                     │
-          ▼                     ▼                     ▼
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│   🔵 ESP32 #1    │  │   🟢 ESP32 #2    │  │   🟡 ESP32 #N    │
-│   Kit LEDs + IA  │  │   Kit Sensores   │  │   (Extensible)   │
-│                  │  │                  │  │                  │
-│  ┌────────────┐  │  │  ┌────────────┐  │  │                  │
-│  │ 10 LEDs    │  │  │  │   DHT11    │  │  │                  │
-│  │ RGB Colors │  │  │  │  Temp/Hum  │  │  │                  │
-│  └────────────┘  │  │  └────────────┘  │  │                  │
-│  ┌────────────┐  │  │  ┌────────────┐  │  │                  │
-│  │   OLED     │  │  │  │  HC-SR04   │  │  │                  │
-│  │  128x64    │  │  │  │ Distancia  │  │  │                  │
-│  └────────────┘  │  │  └────────────┘  │  │                  │
-│  ┌────────────┐  │  │  ┌────────────┐  │  │                  │
-│  │    BLE     │  │  │  │    BLE     │  │  │                  │
-│  │  Config    │  │  │  │  Config    │  │  │                  │
-│  └────────────┘  │  │  └────────────┘  │  │                  │
-└──────────────────┘  └──────────────────┘  └──────────────────┘
+          ┌─────────────────────┼
+          │                     │                     
+          ▼                     ▼                     
+┌──────────────────┐  ┌──────────────────┐  
+│   🔵 ESP32 #1    │  │   🟢 ESP32 #2    │  
+│   Kit LEDs + IA  │  │   Kit Sensores   │  
+│                  │  │                  │  
+│  ┌────────────┐  │  │  ┌────────────┐  │  
+│  │ 10 LEDs    │  │  │  │   DHT11    │  │  
+│  │ RGB Colors │  │  │  │  Temp/Hum  │  │  
+│  └────────────┘  │  │  └────────────┘  │  
+│  ┌────────────┐  │  │  ┌────────────┐  │  
+│  │   OLED     │  │  │  │  HC-SR04   │  │  
+│  │  128x64    │  │  │  │ Distancia  │  │  
+│  └────────────┘  │  │  └────────────┘  │  
+│  ┌────────────┐  │  │  ┌────────────┐  │                    
+│  │    BLE     │  │  │  │    BLE     │  │  
+│  │  Config    │  │  │  │  Config    │  │  
+│  └────────────┘  │  │  └────────────┘  │  
+└──────────────────┘  └──────────────────┘  
 
           ▲                     ▲
           │      BLUETOOTH      │
@@ -195,7 +203,6 @@ dualnode/
 │
 ├── 📄 firmware_leds_ia_fixed.ino     # Firmware ESP32 - Kit LEDs + IA
 ├── 📄 firmware_sensores_fixed.ino    # Firmware ESP32 - Kit Sensores
-├── 📄 DOCUMENTACION.md               # Este archivo
 ├── 📄 .gitignore                     # Archivos ignorados por Git
 │
 └── 📁 servidor/                      # Servidor Node.js
@@ -747,21 +754,6 @@ npm install -g ngrok
 ngrok http 3000
 ```
 
-#### Opción 2: Cloudflare Tunnel (Producción)
-
-```bash
-# Instalar cloudflared
-# Crear túnel permanente
-cloudflared tunnel create dualnode
-cloudflared tunnel route dns dualnode tudominio.com
-```
-
-#### Opción 3: Railway/Render (Cloud)
-
-1. Crear cuenta en Railway o Render
-2. Conectar repositorio GitHub
-3. Configurar variables de entorno
-4. Deploy automático
 
 ---
 
@@ -788,7 +780,6 @@ cloudflared tunnel route dns dualnode tudominio.com
 | Problema | Solución |
 |----------|----------|
 | 0 redes encontradas | Reiniciar ESP32 para nuevo escaneo |
-| Solo "INITIALIZING" | El firmware necesita actualización con MTU/truncamiento |
 | Pocas redes | Normal, se limita a 500 bytes (~15-20 redes) |
 
 ### LEDs no responden
@@ -853,33 +844,12 @@ cloudflared tunnel route dns dualnode tudominio.com
 | Chrome Android | ⚠️ Parcial (BLE limitado) |
 | Firefox | ❌ No soporta Web Bluetooth |
 | Safari | ❌ No soporta Web Bluetooth |
-
----
-
-## 📝 Notas de Desarrollo
-
-### Historial de Cambios Importantes
-
-1. **Escaneo WiFi Proactivo**: El escaneo se realiza al iniciar BLE, no bajo demanda
-2. **MTU Aumentado**: Se configuró MTU a 512 bytes para transmitir más datos
-3. **Truncamiento de Datos**: Se limitan los datos a 500 bytes para evitar errores BLE
-4. **Descriptor BLE2902**: Añadido para mejor compatibilidad con Web Bluetooth
-
-### Consideraciones de Seguridad
-
-- Las credenciales WiFi se transmiten en texto plano por BLE (corto alcance)
-- El servidor debe estar en red local o con HTTPS en producción
-- La API key de Groq no debe exponerse en el frontend
-- Firebase usa autenticación con serviceAccountKey (mantener privada)
-
 ---
 
 ## 👥 Créditos
 
 **DUALNODE** - Sistema IoT Modular para ESP32
 
-Desarrollado como proyecto de sistemas embebidos.
+Desarrollado como proyecto de Fudamento de sistemas embebidos.
 
 ---
-
-*Documentación generada: Noviembre 2025*
